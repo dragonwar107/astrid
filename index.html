@@ -31,7 +31,7 @@
       justify-content: center;
       align-items: center;
       position: relative;
-      padding: env(safe-area-inset-top, 16px) 18px env(safe-area-inset-bottom, 16px) 18px;
+      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px) 16px;
     }
     canvas {
       display: block;
@@ -50,22 +50,35 @@
       pointer-events: auto;
     }
 
-    .stage {
+    /* Contenitore generale centrato rigidamente */
+    .stage-container {
       position: relative;
       z-index: 10;
-      max-width: 420px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .stage {
+      position: absolute;
       width: 100%;
       text-align: center;
       opacity: 0;
       transform: translateY(12px);
-      transition: opacity 0.65s ease, transform 0.65s ease;
+      transition: opacity 0.6s ease, transform 0.6s ease;
       pointer-events: none;
-      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .stage.active {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
+      position: relative;
     }
     .stage.fade-out {
       opacity: 0;
@@ -77,32 +90,37 @@
     }
 
     h1 {
-      font-size: clamp(1.5rem, 6.2vw, 2.2rem);
+      font-size: clamp(1.5rem, 6vw, 2.2rem);
       font-weight: 600;
       line-height: 1.3;
       color: #ffe3ec;
       text-shadow: 0 0 22px rgba(255, 65, 108, 0.8);
-      padding: 0 6px;
+      text-align: center;
+      width: 100%;
     }
     .subtitle {
       margin-top: 12px;
       font-size: clamp(0.95rem, 4vw, 1.05rem);
       color: rgba(255, 200, 215, 0.85);
       line-height: 1.45;
-      padding: 0 8px;
+      text-align: center;
+      width: 100%;
     }
 
     .quiz-card {
-      background: rgba(30, 10, 20, 0.82);
+      background: rgba(30, 10, 20, 0.85);
       border: 1px solid rgba(255, 105, 135, 0.35);
       border-radius: 22px;
       padding: 24px 18px;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(255, 45, 95, 0.18);
-      max-height: 85dvh;
+      max-height: 82dvh;
       overflow-y: auto;
-      text-align: left;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .step-indicator {
       font-size: 0.75rem;
@@ -112,6 +130,7 @@
       margin-bottom: 8px;
       font-weight: 700;
       text-align: center;
+      width: 100%;
     }
     .question-text {
       font-size: clamp(1.15rem, 4.8vw, 1.35rem);
@@ -120,11 +139,13 @@
       margin-bottom: 20px;
       line-height: 1.35;
       text-align: center;
+      width: 100%;
     }
     .options-grid {
       display: flex;
       flex-direction: column;
       gap: 11px;
+      width: 100%;
     }
     .option-btn {
       background: rgba(255, 65, 108, 0.18);
@@ -152,6 +173,7 @@
       font-weight: 500;
       line-height: 1.3;
       text-align: center;
+      width: 100%;
     }
     .shake {
       animation: shake 0.4s ease-in-out;
@@ -185,31 +207,33 @@
 </head>
 <body>
 
-  <!-- STEP 1 -->
-  <div id="step-intro" class="stage active">
-    <h1>Ecco un regalo per la mia Astrid ❤️</h1>
-  </div>
-
-  <!-- STEP 2 -->
-  <div id="step-tease" class="stage">
-    <h1>Pensavi fosse così semplice, ehhh? 😏</h1>
-    <p class="subtitle">Prima devi superare un piccolo test per sbloccare la sorpresa...</p>
-  </div>
-
-  <!-- STEP 3 (Quiz) -->
-  <div id="step-quiz" class="stage">
-    <div class="quiz-card" id="quiz-card">
-      <div class="step-indicator" id="step-indicator">Domanda 1 di 4</div>
-      <div class="question-text" id="question-text"></div>
-      <div class="options-grid" id="options-grid"></div>
-      <div class="feedback-msg" id="feedback-msg"></div>
+  <div class="stage-container">
+    <!-- STEP 1 -->
+    <div id="step-intro" class="stage active">
+      <h1>Ecco un regalo per la mia Astrid ❤️</h1>
     </div>
-  </div>
 
-  <!-- STEP 4 -->
-  <div id="step-outro" class="stage">
-    <h1>Complimenti! Visto che è il tuo preferito... ❤️</h1>
-    <p class="subtitle">Ecco cosa ho preparato per te...</p>
+    <!-- STEP 2 -->
+    <div id="step-tease" class="stage">
+      <h1>Pensavi fosse così semplice, ehhh? 😏</h1>
+      <p class="subtitle">Prima devi superare un piccolo test per sbloccare la sorpresa...</p>
+    </div>
+
+    <!-- STEP 3 (Quiz) -->
+    <div id="step-quiz" class="stage">
+      <div class="quiz-card" id="quiz-card">
+        <div class="step-indicator" id="step-indicator">Domanda 1 di 4</div>
+        <div class="question-text" id="question-text"></div>
+        <div class="options-grid" id="options-grid"></div>
+        <div class="feedback-msg" id="feedback-msg"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step-outro" class="stage">
+      <h1>Complimenti! Visto che è il tuo preferito... ❤️</h1>
+      <p class="subtitle">Ecco cosa ho preparato per te...</p>
+    </div>
   </div>
 
   <!-- CANVAS CUORE 3D -->
@@ -274,9 +298,9 @@
             stepTease.classList.add('hidden');
             stepQuiz.classList.add('active');
             loadQuestion();
-          }, 650);
+          }, 600);
         }, 2800);
-      }, 650);
+      }, 600);
     }, 2600);
 
     function loadQuestion() {
@@ -338,13 +362,13 @@
             stepOutro.classList.add('hidden');
             canvas.classList.add('visible');
             touchHint.classList.add('visible');
-            resize(); // Forza un ricalcolo esatto quando appare il cuore
-          }, 750);
+            resize();
+          }, 700);
         }, 3000);
-      }, 650);
+      }, 600);
     }
 
-    // --- MOTORE GRAFICO CUORE 3D CENTRATO ---
+    // --- MOTORE GRAFICO CUORE 3D ---
     const ctx = canvas.getContext('2d');
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -353,7 +377,6 @@
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      // Legge le dimensioni reali della finestra in modo affidabile su mobile
       width = window.innerWidth || document.documentElement.clientWidth;
       height = window.innerHeight || document.documentElement.clientHeight;
       isMobile = width < 600;
@@ -364,9 +387,7 @@
     }
 
     window.addEventListener('resize', resize);
-    window.addEventListener('orientationchange', () => {
-      setTimeout(resize, 200);
-    });
+    window.addEventListener('orientationchange', () => { setTimeout(resize, 200); });
     resize();
 
     const phrases = [
@@ -464,7 +485,6 @@
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Centro esatto basato sulle dimensioni reali aggiornate del canvas
       const centerX = width / 2;
       const centerY = height / 2 - 12;
 
