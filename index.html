@@ -41,7 +41,7 @@
       width: 100%;
       height: 100%;
       opacity: 0;
-      transition: opacity 1.8s ease-in-out;
+      transition: opacity 1.5s ease-in-out;
       pointer-events: none;
       touch-action: none;
     }
@@ -50,7 +50,7 @@
       pointer-events: auto;
     }
 
-    /* Contenitore generale centrato rigidamente */
+    /* Contenitore generale centrato */
     .stage-container {
       position: relative;
       z-index: 10;
@@ -179,22 +179,80 @@
       animation: shake 0.4s ease-in-out;
     }
 
+    /* Contatore tocchi sul cuore */
     .touch-hint {
       position: fixed;
-      bottom: calc(env(safe-area-inset-bottom, 16px) + 14px);
+      bottom: calc(env(safe-area-inset-bottom, 16px) + 18px);
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.82rem;
-      color: rgba(255, 190, 210, 0.6);
-      letter-spacing: 0.4px;
+      background: rgba(35, 10, 22, 0.75);
+      border: 1px solid rgba(255, 105, 135, 0.4);
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #ffd6e0;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       pointer-events: none;
       opacity: 0;
-      transition: opacity 2s ease 1.5s;
-      z-index: 5;
+      transition: opacity 1s ease;
+      z-index: 15;
       white-space: nowrap;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
     .touch-hint.visible {
       opacity: 1;
+    }
+
+    /* Schermata finale con il biglietto */
+    #ticket-reveal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: radial-gradient(circle at center, #240916 0%, #070306 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+    #ticket-reveal.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .ticket-title {
+      font-size: clamp(1.35rem, 5.5vw, 1.9rem);
+      font-weight: 600;
+      color: #ffe3ec;
+      text-align: center;
+      margin-bottom: 18px;
+      text-shadow: 0 0 18px rgba(255, 65, 108, 0.8);
+      animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .ticket-frame {
+      width: 100%;
+      max-width: 460px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 14px;
+      box-shadow: 0 15px 45px rgba(255, 45, 95, 0.35), 0 5px 20px rgba(0, 0, 0, 0.8);
+      animation: popIn 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .ticket-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+    }
+    .ticket-sub {
+      margin-top: 18px;
+      font-size: 1rem;
+      color: #ffb3c6;
+      text-align: center;
     }
 
     @keyframes shake {
@@ -202,6 +260,10 @@
       25% { transform: translateX(-8px); }
       50% { transform: translateX(8px); }
       75% { transform: translateX(-5px); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.85) translateY(15px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
   </style>
 </head>
@@ -238,7 +300,16 @@
 
   <!-- CANVAS CUORE 3D -->
   <canvas id="canvas"></canvas>
-  <div id="touch-hint" class="touch-hint">Tocca o trascina per muovere il cuore ✨</div>
+  <div id="touch-hint" class="touch-hint">Tocca il cuore 17 volte per sbloccare ❤️ (17)</div>
+
+  <!-- STEP FINALE: BIGLIETTO -->
+  <div id="ticket-reveal" class="hidden">
+    <div class="ticket-title">Andiamo al concerto di Irama! 🎤❤️</div>
+    <div class="ticket-frame">
+      <img src="biglietto.jpg" alt="Biglietto Concerto Irama">
+    </div>
+    <div class="ticket-sub">Ti amo infinitamente Astrid ✨</div>
+  </div>
 
   <script>
     const quizData = [
@@ -279,6 +350,7 @@
     const feedbackMsg = document.getElementById('feedback-msg');
     const canvas = document.getElementById('canvas');
     const touchHint = document.getElementById('touch-hint');
+    const ticketReveal = document.getElementById('ticket-reveal');
 
     let currentQuestion = 0;
 
@@ -368,7 +440,7 @@
       }, 600);
     }
 
-    // --- MOTORE GRAFICO CUORE 3D ---
+    // --- MOTORE GRAFICO CUORE 3D + CONTATORE 17 TOCCHI ---
     const ctx = canvas.getContext('2d');
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -432,18 +504,18 @@
     }
 
     const burstHearts = [];
-    function spawnBurst(x, y) {
-      for (let i = 0; i < 9; i++) {
-        const angle = (Math.PI * 2 * i) / 9 + (Math.random() - 0.5) * 0.4;
-        const speed = Math.random() * 2.2 + 1.1;
+    function spawnBurst(x, y, count = 9) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+        const speed = Math.random() * 2.5 + 1.2;
         burstHearts.push({
           x: x,
           y: y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed - 0.8,
-          size: Math.random() * 9 + 10,
+          size: Math.random() * 10 + 11,
           life: 1.0,
-          decay: Math.random() * 0.02 + 0.016
+          decay: Math.random() * 0.02 + 0.015
         });
       }
     }
@@ -453,11 +525,41 @@
     let isDragging = false;
     let lastX = 0;
 
+    // Contatore dei 17 tocchi
+    let heartClicks = 0;
+    const targetClicks = 17;
+    let ticketUnlocked = false;
+    let extraBeatBoost = 0;
+
     canvas.addEventListener('pointerdown', (e) => {
+      if (ticketUnlocked) return;
       isDragging = true;
       lastX = e.clientX;
-      spawnBurst(e.clientX, e.clientY);
+
+      heartClicks++;
+      extraBeatBoost = 0.12; // Fa battere forte il cuore ad ogni tocco
+      spawnBurst(e.clientX, e.clientY, 10);
+
+      const remaining = targetClicks - heartClicks;
+      if (remaining > 0) {
+        touchHint.textContent = remaining === 1
+          ? "Ancora 1 ultimo tocco! ❤️"
+          : `Tocca ancora ${remaining} volte ❤️`;
+      } else {
+        ticketUnlocked = true;
+        touchHint.classList.remove('visible');
+        spawnBurst(width / 2, height / 2, 28);
+
+        setTimeout(() => {
+          ticketReveal.classList.remove('hidden');
+          // Piccola pausa per attivare la transizione di dissolvenza
+          requestAnimationFrame(() => {
+            ticketReveal.classList.add('visible');
+          });
+        }, 450);
+      }
     });
+
     window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
       const dx = e.clientX - lastX;
@@ -486,11 +588,14 @@
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
-      const centerY = height / 2 - 12;
+      const centerY = height / 2 - 15;
+
+      // Smorza gradualmente il battito extra del tocco
+      extraBeatBoost *= 0.88;
 
       const beat1 = Math.pow(Math.sin(time * 3.1), 8) * 0.13;
       const beat2 = Math.pow(Math.sin(time * 3.1 - 0.45), 8) * 0.065;
-      const pulse = beat1 + beat2;
+      const pulse = beat1 + beat2 + extraBeatBoost;
 
       const divisor = isMobile ? 41 : 37;
       const baseScale = Math.min(width, height) / divisor;
